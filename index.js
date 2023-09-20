@@ -1,13 +1,14 @@
 const fs = require("fs/promises");
 const contacts = require("./contacts");
 const { Command } = require("commander");
+
 const program = new Command();
 program
-  .option("--action, <type> ", "choose action")
-  .option("--id, <type> ")
-  .option("--name, <type> ")
-  .option("--email, <type> ")
-  .option("--phone, <type> ");
+  .option("-a, --action, <type> ", "choose action")
+  .option("-i --id <type> ", "user id")
+  .option("-n, --name <type> ", "user name")
+  .option("-e, --email <type> ", "user email")
+  .option("-p, --phone <type> ", "user phone");
 
 program.parse();
 

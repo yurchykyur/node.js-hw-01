@@ -1,19 +1,27 @@
 const fs = require("fs/promises");
 const path = require("path");
 const { nanoid } = require("nanoid");
+const { CLIError } = require("./helpers");
+require("colors");
+const { writeContactsFile } = require("./helpers");
 
 const contactsPath = path.join(__dirname, "db/contacts.json");
 
 async function listContacts() {
-  const contacts = await fs.readFile(contactsPath);
-  return JSON.parse(contacts);
+  try {
+    const contacts = await fs.readFile(contactsPath);
+    console.log(`Вдалося прочитати файл ${contactsPath}`.blue);
+    return JSON.parse(contacts);
+  } catch (error) {
+    throw CLIError(`В файлі відсутні дані ${contactsPath}`.red);
+  }
 }
 
 async function getContactById(contactId) {
   const contacts = await listContacts();
   const contactById = contacts.find((elem) => elem.id === contactId);
 
-  return contactById || null;
+  return contactById;
 }
 
 async function removeContact(contactId) {
@@ -25,7 +33,7 @@ async function removeContact(contactId) {
   }
 
   const [deletedContact] = contacts.splice(index, 1);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+  await writeContactsFile(contacts, contactsPath);
 
   return deletedContact;
 }
@@ -35,10 +43,14 @@ async function addContact(data) {
   const newContact = { ...data, id: nanoid() };
 
   contacts.push(newContact);
-
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+  await writeContactsFile(contacts, contactsPath);
 
   return newContact;
 }
 
-module.exports = { listContacts, getContactById, removeContact, addContact };
+module.exports = {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+};
